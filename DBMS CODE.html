@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farming Database Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #333;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background: white;
+        }
+        .status-good {
+            color: green;
+            font-weight: bold;
+        }
+        .status-warning {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-error {
+            color: red;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Farming Database Management System</h1>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'Dashboard')">Dashboard</button>
+            <button class="tablinks" onclick="openTab(event, 'Farms')">Farms</button>
+            <button class="tablinks" onclick="openTab(event, 'Fields')">Fields</button>
+            <button class="tablinks" onclick="openTab(event, 'Sensors')">Sensors</button>
+            <button class="tablinks" onclick="openTab(event, 'Irrigation')">Irrigation</button>
+            <button class="tablinks" onclick="openTab(event, 'Harvests')">Harvests</button>
+            <button class="tablinks" onclick="openTab(event, 'Analytics')">Analytics</button>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="Dashboard" class="tabcontent" style="display: block;">
+            <h2>Farm Overview</h2>
+            <div id="dashboardStats"></div>
+            
+            <h3>Recent Sensor Readings</h3>
+            <div id="recentReadings"></div>
+            
+            <h3>Irrigation Needed</h3>
+            <div id="irrigationAlerts"></div>
+        </div>
+        
+        <!-- Farms Tab -->
+        <div id="Farms" class="tabcontent">
+            <h2>Farm Management</h2>
+            <div class="section">
+                <h3>Add New Farm</h3>
+                <div class="form-group">
+                    <label for="farmName">Farm Name:</label>
+                    <input type="text" id="farmName" placeholder="Enter farm name">
+                </div>
+                <div class="form-group">
+                    <label for="farmLocation">Location (coordinates):</label>
+                    <input type="text" id="farmLocation" placeholder="e.g., 45.123, -122.456">
+                </div>
+                <div class="form-group">
+                    <label for="farmArea">Total Area (acres):</label>
+                    <input type="number" id="farmArea" step="0.1" placeholder="Enter area in acres">
+                </div>
+                <div class="form-group">
+                    <label for="farmSoilType">Soil Type:</label>
+                    <input type="text" id="farmSoilType" placeholder="e.g., loamy, sandy, clay">
+                </div>
+                <button onclick="addFarm()">Add Farm</button>
+            </div>
+            
+            <div class="section">
+                <h3>Existing Farms</h3>
+                <div id="farmsList"></div>
+            </div>
+        </div>
+        
+        <!-- Fields Tab -->
+        <div id="Fields" class="tabcontent">
+            <h2>Field Management</h2>
+            <div class="section">
+                <h3>Add New Field</h3>
+                <div class="form-group">
+                    <label for="fieldFarm">Select Farm:</label>
+                    <select id="fieldFarm"></select>
+                </div>
+                <div class="form-group">
+                    <label for="fieldName">Field Name:</label>
+                    <input type="text" id="fieldName" placeholder="Enter field name">
+                </div>
+                <div class="form-group">
+                    <label for="fieldArea">Area (acres):</label>
+                    <input type="number" id="fieldArea" step="0.1" placeholder="Enter area in acres">
+                </div>
+                <div class="form-group">
+                    <label for="fieldCrop">Crop Type:</label>
+                    <input type="text" id="fieldCrop" placeholder="e.g., Tomatoes, Lettuce">
+                </div>
+                <div class="form-group">
+                    <label for="fieldPlantingDate">Planting Date:</label>
+                    <input type="date" id="fieldPlantingDate">
+                </div>
+                <div class="form-group">
+                    <label for="fieldStatus">Status:</label>
+                    <select id="fieldStatus">
+                        <option value="preparing">Preparing</option>
+                        <option value="planted">Planted</option>
+                        <option value="growing">Growing</option>
+                        <option value="harvested">Harvested</option>
+                        <option value="fallow">Fallow</option>
+                    </select>
+                </div>
+                <button onclick="addField()">Add Field</button>
+            </div>
+            
+            <div class="section">
+                <h3>Existing Fields</h3>
+                <div id="fieldsList"></div>
+            </div>
+        </div>
+        
+        <!-- Sensors Tab -->
+        <div id="Sensors" class="tabcontent">
+            <h2>Sensor Management</h2>
+            <div class="section">
+                <h3>Install New Sensor</h3>
+                <div class="form-group">
+                    <label for="sensorField">Select Field:</label>
+                    <select id="sensorField"></select>
+                </div>
+                <div class="form-group">
+                    <label for="sensorType">Sensor Type:</label>
+                    <select id="sensorType">
+                        <option value="soil_moisture">Soil Moisture</option>
+                        <option value="temperature">Temperature</option>
+                        <option value="humidity">Humidity</option>
+                        <option value="light">Light</option>
+                        <option value="ph">pH</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sensorManufacturer">Manufacturer:</label>
+                    <input type="text" id="sensorManufacturer" placeholder="Enter manufacturer">
+                </div>
+                <button onclick="installSensor()">Install Sensor</button>
+            </div>
+            
+            <div class="section">
+                <h3>Record Sensor Reading</h3>
+                <div class="form-group">
+                    <label for="readingSensor">Select Sensor:</label>
+                    <select id="readingSensor"></select>
+                </div>
+                <div class="form-group">
+                    <label for="readingValue">Reading Value:</label>
+                    <input type="number" id="readingValue" step="0.1" placeholder="Enter reading value">
+                </div>
+                <div class="form-group">
+                    <label for="readingUnit">Unit:</label>
+                    <input type="text" id="readingUnit" placeholder="e.g., %, C, pH">
+                </div>
+                <button onclick="recordSensorReading()">Record Reading</button>
+            </div>
+            
+            <div class="section">
+                <h3>Sensor Data</h3>
+                <div id="sensorsList"></div>
+            </div>
+        </div>
+        
+        <!-- Irrigation Tab -->
+        <div id="Irrigation" class="tabcontent">
+            <h2>Irrigation Management</h2>
+            <div class="section">
+                <h3>Install Irrigation System</h3>
+                <div class="form-group">
+                    <label for="irrigationField">Select Field:</label>
+                    <select id="irrigationField"></select>
+                </div>
+                <div class="form-group">
+                    <label for="irrigationType">System Type:</label>
+                    <select id="irrigationType">
+                        <option value="drip">Drip</option>
+                        <option value="sprinkler">Sprinkler</option>
+                        <option value="flood">Flood</option>
+                        <option value="pivot">Pivot</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="irrigationCapacity">Capacity (liters/hour):</label>
+                    <input type="number" id="irrigationCapacity" step="0.1" placeholder="Enter capacity">
+                </div>
+                <button onclick="installIrrigationSystem()">Install System</button>
+            </div>
+            
+            <div class="section">
+                <h3>Manage Irrigation</h3>
+                <div class="form-group">
+                    <label for="irrigationSystem">Select System:</label>
+                    <select id="irrigationSystem"></select>
+                </div>
+                <button onclick="startIrrigation()">Start Irrigation</button>
+                <div id="activeIrrigation" style="margin-top: 15px; display: none;">
+                    <h4>Active Irrigation</h4>
+                    <div id="currentIrrigationInfo"></div>
+                    <div class="form-group">
+                        <label for="waterUsed">Water Used (liters):</label>
+                        <input type="number" id="waterUsed" step="0.1" placeholder="Enter water used">
+                    </div>
+                    <button onclick="endIrrigation()">End Irrigation</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Irrigation History</h3>
+                <div id="irrigationHistory"></div>
+            </div>
+        </div>
+        
+        <!-- Harvests Tab -->
+        <div id="Harvests" class="tabcontent">
+            <h2>Harvest Management</h2>
+            <div class="section">
+                <h3>Record Harvest</h3>
+                <div class="form-group">
+                    <label for="harvestField">Select Field:</label>
+                    <select id="harvestField"></select>
+                </div>
+                <div class="form-group">
+                    <label for="harvestYield">Yield Amount:</label>
+                    <input type="number" id="harvestYield" step="0.1" placeholder="Enter yield amount">
+                </div>
+                <div class="form-group">
+                    <label for="harvestUnit">Yield Unit:</label>
+                    <input type="text" id="harvestUnit" placeholder="e.g., kg, lbs, tons">
+                </div>
+                <div class="form-group">
+                    <label for="harvestQuality">Quality Rating (1-5):</label>
+                    <input type="number" id="harvestQuality" min="1" max="5" placeholder="Enter quality rating">
+                </div>
+                <button onclick="recordHarvest()">Record Harvest</button>
+            </div>
+            
+            <div class="section">
+                <h3>Harvest History</h3>
+                <div id="harvestHistory"></div>
+            </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="Analytics" class="tabcontent">
+            <h2>Farm Analytics</h2>
+            <div class="section">
+                <h3>Field Health Analysis</h3>
+                <div class="form-group">
+                    <label for="healthField">Select Field:</label>
+                    <select id="healthField"></select>
+                </div>
+                <button onclick="analyzeFieldHealth()">Analyze Field Health</button>
+                <div id="fieldHealthResult" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="section">
+                <h3>Water Usage Report</h3>
+                <div class="form-group">
+                    <label for="waterFarm">Select Farm:</label>
+                    <select id="waterFarm"></select>
+                </div>
+                <div class="form-group">
+                    <label for="waterPeriod">Time Period:</label>
+                    <select id="waterPeriod">
+                        <option value="day">Last Day</option>
+                        <option value="week">Last Week</option>
+                        <option value="month">Last Month</option>
+                    </select>
+                </div>
+                <button onclick="generateWaterReport()">Generate Report</button>
+                <div id="waterReport" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="section">
+                <h3>Yield Comparison</h3>
+                <div class="form-group">
+                    <label for="yieldFarm">Select Farm:</label>
+                    <select id="yieldFarm"></select>
+                </div>
+                <button onclick="generateYieldComparison()">Generate Comparison</button>
+                <div id="yieldComparison" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database initialization
+        let db;
+        
+        function initializeDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('SmartFarmingDB', 1);
+                
+                request.onerror = function(event) {
+                    console.error("Database error:", event.target.error);
+                    reject("Database error");
+                };
+                
+                request.onsuccess = function(event) {
+                    db = event.target.result;
+                    console.log("Database initialized successfully");
+                    resolve();
+                };
+                
+                request.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    
+                    // Farms table
+                    const farmsStore = db.createObjectStore('farms', { keyPath: 'farm_id', autoIncrement: true });
+                    farmsStore.createIndex('name', 'name', { unique: false });
+                    
+                    // Fields table
+                    const fieldsStore = db.createObjectStore('fields', { keyPath: 'field_id', autoIncrement: true });
+                    fieldsStore.createIndex('farm_id', 'farm_id', { unique: false });
+                    fieldsStore.createIndex('name', 'name', { unique: false });
+                    
+                    // Sensors table
+                    const sensorsStore = db.createObjectStore('sensors', { keyPath: 'sensor_id', autoIncrement: true });
+                    sensorsStore.createIndex('field_id', 'field_id', { unique: false });
+                    sensorsStore.createIndex('sensor_type', 'sensor_type', { unique: false });
+                    
+                    // Sensor readings table
+                    const readingsStore = db.createObjectStore('sensor_readings', { keyPath: 'reading_id', autoIncrement: true });
+                    readingsStore.createIndex('sensor_id', 'sensor_id', { unique: false });
+                    readingsStore.createIndex('reading_time', 'reading_time', { unique: false });
+                    
+                    // Irrigation systems table
+                    const irrigationStore = db.createObjectStore('irrigation_systems', { keyPath: 'system_id', autoIncrement: true });
+                    irrigationStore.createIndex('field_id', 'field_id', { unique: false });
+                    
+                    // Irrigation logs table
+                    const irrigationLogsStore = db.createObjectStore('irrigation_logs', { keyPath: 'log_id', autoIncrement: true });
+                    irrigationLogsStore.createIndex('system_id', 'system_id', { unique: false });
+                    
+                    // Crops table (pre-populate with some common crops)
+                    const cropsStore = db.createObjectStore('crops', { keyPath: 'crop_id', autoIncrement: true });
+                    cropsStore.createIndex('name', 'name', { unique: true });
+                    
+                    // Harvests table
+                    const harvestsStore = db.createObjectStore('harvests', { keyPath: 'harvest_id', autoIncrement: true });
+                    harvestsStore.createIndex('field_id', 'field_id', { unique: false });
+                    
+                    // Pre-populate crops data
+                    const crops = [
+                        { name: 'Tomatoes', variety: 'Beefsteak', optimal_temp_min: 18, optimal_temp_max: 28, 
+                          optimal_moisture_min: 60, optimal_moisture_max: 80, growth_duration_days: 90 },
+                        { name: 'Lettuce', variety: 'Romaine', optimal_temp_min: 10, optimal_temp_max: 20, 
+                          optimal_moisture_min: 70, optimal_moisture_max: 85, growth_duration_days: 60 },
+                        { name: 'Wheat', variety: 'Winter', optimal_temp_min: 10, optimal_temp_max: 24, 
+                          optimal_moisture_min: 50, optimal_moisture_max: 70, growth_duration_days: 120 },
+                        { name: 'Corn', variety: 'Sweet', optimal_temp_min: 16, optimal_temp_max: 30, 
+                          optimal_moisture_min: 65, optimal_moisture_max: 80, growth_duration_days: 100 }
+                    ];
+                    
+                    const tx = event.target.transaction;
+                    const store = tx.objectStore('crops');
+                    crops.forEach(crop => {
+                        store.add(crop);
+                    });
+                };
+            });
+        }
+        
+        // Helper functions
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            
+            // Refresh data when tab is opened
+            switch(tabName) {
+                case 'Dashboard':
+                    loadDashboard();
+                    break;
+                case 'Farms':
+                    loadFarms();
+                    break;
+                case 'Fields':
+                    loadFields();
+                    populateFieldFarmDropdown();
+                    break;
+                case 'Sensors':
+                    loadSensors();
+                    populateSensorFieldDropdown();
+                    populateReadingSensorDropdown();
+                    break;
+                case 'Irrigation':
+                    loadIrrigationSystems();
+                    populateIrrigationFieldDropdown();
+                    populateIrrigationSystemDropdown();
+                    loadIrrigationHistory();
+                    break;
+                case 'Harvests':
+                    loadHarvests();
+                    populateHarvestFieldDropdown();
+                    break;
+                case 'Analytics':
+                    populateHealthFieldDropdown();
+                    populateWaterFarmDropdown();
+                    populateYieldFarmDropdown();
+                    break;
+            }
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+        
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            const date = new Date(dateTimeString);
+            return date.toLocaleString();
+        }
+        
+        // Farm management functions
+        function addFarm() {
+            const name = document.getElementById('farmName').value;
+            const location = document.getElementById('farmLocation').value;
+            const area = parseFloat(document.getElementById('farmArea').value);
+            const soilType = document.getElementById('farmSoilType').value;
+            
+            if (!name || !location || isNaN(area) || !soilType) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const tx = db.transaction(['farms'], 'readwrite');
+            const store = tx.objectStore('farms');
+            
+            const farm = {
+                name: name,
+                location: location,
+                total_area: area,
+                soil_type: soilType,
+                established_date: new Date().toISOString()
+            };
+            
+            const request = store.add(farm);
+            
+            request.onsuccess = function() {
+                alert('Farm added successfully');
+                document.getElementById('farmName').value = '';
+                document.getElementById('farmLocation').value = '';
+                document.getElementById('farmArea').value = '';
+                document.getElementById('farmSoilType').value = '';
+                loadFarms();
+                populateFieldFarmDropdown();
+                populateWaterFarmDropdown();
+                populateYieldFarmDropdown();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error adding farm:', event.target.error);
+                alert('Error adding farm');
+            };
+        }
+        
+        function loadFarms() {
+            const tx = db.transaction(['farms'], 'readonly');
+            const store = tx.objectStore('farms');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const farms = request.result;
+                const farmsList = document.getElementById('farmsList');
+                
+                if (farms.length === 0) {
+                    farmsList.innerHTML = '<p>No farms found</p>';
+                    return;
+                }
+                
+                let html = '<table><tr><th>ID</th><th>Name</th><th>Location</th><th>Area (acres)</th><th>Soil Type</th><th>Established</th></tr>';
+                
+                farms.forEach(farm => {
+                    html += `<tr>
+                        <td>${farm.farm_id}</td>
+                        <td>${farm.name}</td>
+                        <td>${farm.location}</td>
+                        <td>${farm.total_area}</td>
+                        <td>${farm.soil_type}</td>
+                        <td>${formatDate(farm.established_date)}</td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                farmsList.innerHTML = html;
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading farms:', event.target.error);
+                document.getElementById('farmsList').innerHTML = '<p>Error loading farms</p>';
+            };
+        }
+        
+        // Field management functions
+        function populateFieldFarmDropdown() {
+            const tx = db.transaction(['farms'], 'readonly');
+            const store = tx.objectStore('farms');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const farms = request.result;
+                const dropdown = document.getElementById('fieldFarm');
+                
+                dropdown.innerHTML = '';
+                farms.forEach(farm => {
+                    const option = document.createElement('option');
+                    option.value = farm.farm_id;
+                    option.textContent = `${farm.name} (ID: ${farm.farm_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function addField() {
+            const farmId = parseInt(document.getElementById('fieldFarm').value);
+            const name = document.getElementById('fieldName').value;
+            const area = parseFloat(document.getElementById('fieldArea').value);
+            const cropType = document.getElementById('fieldCrop').value;
+            const plantingDate = document.getElementById('fieldPlantingDate').value;
+            const status = document.getElementById('fieldStatus').value;
+            
+            if (!farmId || !name || isNaN(area) || !cropType || !status) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            const tx = db.transaction(['fields'], 'readwrite');
+            const store = tx.objectStore('fields');
+            
+            const field = {
+                farm_id: farmId,
+                name: name,
+                area: area,
+                crop_type: cropType,
+                planting_date: plantingDate || null,
+                status: status
+            };
+            
+            const request = store.add(field);
+            
+            request.onsuccess = function() {
+                alert('Field added successfully');
+                document.getElementById('fieldName').value = '';
+                document.getElementById('fieldArea').value = '';
+                document.getElementById('fieldCrop').value = '';
+                document.getElementById('fieldPlantingDate').value = '';
+                loadFields();
+                populateSensorFieldDropdown();
+                populateIrrigationFieldDropdown();
+                populateHarvestFieldDropdown();
+                populateHealthFieldDropdown();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error adding field:', event.target.error);
+                alert('Error adding field');
+            };
+        }
+        
+        function loadFields() {
+            const tx = db.transaction(['fields', 'farms'], 'readonly');
+            const fieldsStore = tx.objectStore('fields');
+            const farmsStore = tx.objectStore('farms');
+            
+            const request = fieldsStore.getAll();
+            
+            request.onsuccess = function() {
+                const fields = request.result;
+                const fieldsList = document.getElementById('fieldsList');
+                
+                if (fields.length === 0) {
+                    fieldsList.innerHTML = '<p>No fields found</p>';
+                    return;
+                }
+                
+                // Get farm names for each field
+                const farmRequests = fields.map(field => {
+                    return new Promise((resolve) => {
+                        const farmRequest = farmsStore.get(field.farm_id);
+                        farmRequest.onsuccess = function() {
+                            field.farm_name = farmRequest.result ? farmRequest.result.name : 'Unknown';
+                            resolve();
+                        };
+                        farmRequest.onerror = function() {
+                            field.farm_name = 'Unknown';
+                            resolve();
+                        };
+                    });
+                });
+                
+                Promise.all(farmRequests).then(() => {
+                    let html = '<table><tr><th>ID</th><th>Name</th><th>Farm</th><th>Area (acres)</th><th>Crop Type</th><th>Status</th><th>Planted</th></tr>';
+                    
+                    fields.forEach(field => {
+                        html += `<tr>
+                            <td>${field.field_id}</td>
+                            <td>${field.name}</td>
+                            <td>${field.farm_name}</td>
+                            <td>${field.area}</td>
+                            <td>${field.crop_type}</td>
+                            <td>${field.status}</td>
+                            <td>${formatDate(field.planting_date)}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    fieldsList.innerHTML = html;
+                });
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading fields:', event.target.error);
+                document.getElementById('fieldsList').innerHTML = '<p>Error loading fields</p>';
+            };
+        }
+        
+        // Sensor management functions
+        function populateSensorFieldDropdown() {
+            const tx = db.transaction(['fields'], 'readonly');
+            const store = tx.objectStore('fields');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const fields = request.result;
+                const dropdown = document.getElementById('sensorField');
+                
+                dropdown.innerHTML = '';
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.field_id;
+                    option.textContent = `${field.name} (ID: ${field.field_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function populateReadingSensorDropdown() {
+            const tx = db.transaction(['sensors', 'fields'], 'readonly');
+            const sensorsStore = tx.objectStore('sensors');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const request = sensorsStore.getAll();
+            
+            request.onsuccess = function() {
+                const sensors = request.result;
+                const dropdown = document.getElementById('readingSensor');
+                
+                dropdown.innerHTML = '';
+                
+                if (sensors.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = 'No sensors available';
+                    dropdown.appendChild(option);
+                    return;
+                }
+                
+                // Get field names for each sensor
+                const fieldRequests = sensors.map(sensor => {
+                    return new Promise((resolve) => {
+                        const fieldRequest = fieldsStore.get(sensor.field_id);
+                        fieldRequest.onsuccess = function() {
+                            sensor.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                            resolve();
+                        };
+                        fieldRequest.onerror = function() {
+                            sensor.field_name = 'Unknown';
+                            resolve();
+                        };
+                    });
+                });
+                
+                Promise.all(fieldRequests).then(() => {
+                    sensors.forEach(sensor => {
+                        const option = document.createElement('option');
+                        option.value = sensor.sensor_id;
+                        option.textContent = `${sensor.sensor_type} in ${sensor.field_name} (ID: ${sensor.sensor_id})`;
+                        dropdown.appendChild(option);
+                    });
+                });
+            };
+        }
+        
+        function installSensor() {
+            const fieldId = parseInt(document.getElementById('sensorField').value);
+            const sensorType = document.getElementById('sensorType').value;
+            const manufacturer = document.getElementById('sensorManufacturer').value;
+            
+            if (!fieldId || !sensorType || !manufacturer) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const tx = db.transaction(['sensors'], 'readwrite');
+            const store = tx.objectStore('sensors');
+            
+            const sensor = {
+                field_id: fieldId,
+                sensor_type: sensorType,
+                manufacturer: manufacturer,
+                installation_date: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            const request = store.add(sensor);
+            
+            request.onsuccess = function() {
+                alert('Sensor installed successfully');
+                document.getElementById('sensorManufacturer').value = '';
+                loadSensors();
+                populateReadingSensorDropdown();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error installing sensor:', event.target.error);
+                alert('Error installing sensor');
+            };
+        }
+        
+        function recordSensorReading() {
+            const sensorId = parseInt(document.getElementById('readingSensor').value);
+            const value = parseFloat(document.getElementById('readingValue').value);
+            const unit = document.getElementById('readingUnit').value;
+            
+            if (!sensorId || isNaN(value) || !unit) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const tx = db.transaction(['sensor_readings'], 'readwrite');
+            const store = tx.objectStore('sensor_readings');
+            
+            const reading = {
+                sensor_id: sensorId,
+                value: value,
+                unit: unit,
+                reading_time: new Date().toISOString()
+            };
+            
+            const request = store.add(reading);
+            
+            request.onsuccess = function() {
+                alert('Sensor reading recorded successfully');
+                document.getElementById('readingValue').value = '';
+                document.getElementById('readingUnit').value = '';
+                loadSensors();
+                loadDashboard();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error recording sensor reading:', event.target.error);
+                alert('Error recording sensor reading');
+            };
+        }
+        
+        function loadSensors() {
+            const tx = db.transaction(['sensors', 'fields', 'sensor_readings'], 'readonly');
+            const sensorsStore = tx.objectStore('sensors');
+            const fieldsStore = tx.objectStore('fields');
+            const readingsStore = tx.objectStore('sensor_readings');
+            
+            const request = sensorsStore.getAll();
+            
+            request.onsuccess = function() {
+                const sensors = request.result;
+                const sensorsList = document.getElementById('sensorsList');
+                
+                if (sensors.length === 0) {
+                    sensorsList.innerHTML = '<p>No sensors found</p>';
+                    return;
+                }
+                
+                // Get field names and latest readings for each sensor
+                const sensorDetails = sensors.map(sensor => {
+                    return new Promise((resolve) => {
+                        // Get field name
+                        const fieldRequest = fieldsStore.get(sensor.field_id);
+                        fieldRequest.onsuccess = function() {
+                            sensor.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                            
+                            // Get latest reading
+                            const index = readingsStore.index('sensor_id');
+                            const readingRequest = index.openCursor(IDBKeyRange.only(sensor.sensor_id), 'prev');
+                            
+                            let latestReading = null;
+                            readingRequest.onsuccess = function(event) {
+                                const cursor = event.target.result;
+                                if (cursor) {
+                                    latestReading = cursor.value;
+                                    resolve({ sensor, latestReading });
+                                } else {
+                                    resolve({ sensor, latestReading: null });
+                                }
+                            };
+                            
+                            readingRequest.onerror = function() {
+                                resolve({ sensor, latestReading: null });
+                            };
+                        };
+                        
+                        fieldRequest.onerror = function() {
+                            sensor.field_name = 'Unknown';
+                            resolve({ sensor, latestReading: null });
+                        };
+                    });
+                });
+                
+                Promise.all(sensorDetails).then(results => {
+                    let html = '<table><tr><th>ID</th><th>Type</th><th>Field</th><th>Manufacturer</th><th>Status</th><th>Latest Reading</th><th>Installed</th></tr>';
+                    
+                    results.forEach(({ sensor, latestReading }) => {
+                        html += `<tr>
+                            <td>${sensor.sensor_id}</td>
+                            <td>${sensor.sensor_type}</td>
+                            <td>${sensor.field_name}</td>
+                            <td>${sensor.manufacturer}</td>
+                            <td>${sensor.status}</td>
+                            <td>${latestReading ? `${latestReading.value} ${latestReading.unit}` : 'N/A'}</td>
+                            <td>${formatDate(sensor.installation_date)}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    sensorsList.innerHTML = html;
+                });
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading sensors:', event.target.error);
+                document.getElementById('sensorsList').innerHTML = '<p>Error loading sensors</p>';
+            };
+        }
+        
+        // Irrigation management functions
+        function populateIrrigationFieldDropdown() {
+            const tx = db.transaction(['fields'], 'readonly');
+            const store = tx.objectStore('fields');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const fields = request.result;
+                const dropdown = document.getElementById('irrigationField');
+                
+                dropdown.innerHTML = '';
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.field_id;
+                    option.textContent = `${field.name} (ID: ${field.field_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function populateIrrigationSystemDropdown() {
+            const tx = db.transaction(['irrigation_systems', 'fields'], 'readonly');
+            const systemsStore = tx.objectStore('irrigation_systems');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const request = systemsStore.getAll();
+            
+            request.onsuccess = function() {
+                const systems = request.result;
+                const dropdown = document.getElementById('irrigationSystem');
+                
+                dropdown.innerHTML = '';
+                
+                if (systems.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = 'No irrigation systems available';
+                    dropdown.appendChild(option);
+                    return;
+                }
+                
+                // Get field names for each system
+                const fieldRequests = systems.map(system => {
+                    return new Promise((resolve) => {
+                        const fieldRequest = fieldsStore.get(system.field_id);
+                        fieldRequest.onsuccess = function() {
+                            system.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                            resolve();
+                        };
+                        fieldRequest.onerror = function() {
+                            system.field_name = 'Unknown';
+                            resolve();
+                        };
+                    });
+                });
+                
+                Promise.all(fieldRequests).then(() => {
+                    systems.forEach(system => {
+                        const option = document.createElement('option');
+                        option.value = system.system_id;
+                        option.textContent = `${system.system_type} in ${system.field_name} (ID: ${system.system_id})`;
+                        dropdown.appendChild(option);
+                    });
+                    
+                    // Check for active irrigation
+                    checkActiveIrrigation();
+                });
+            };
+        }
+        
+        function installIrrigationSystem() {
+            const fieldId = parseInt(document.getElementById('irrigationField').value);
+            const systemType = document.getElementById('irrigationType').value;
+            const capacity = parseFloat(document.getElementById('irrigationCapacity').value);
+            
+            if (!fieldId || !systemType || isNaN(capacity)) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const tx = db.transaction(['irrigation_systems'], 'readwrite');
+            const store = tx.objectStore('irrigation_systems');
+            
+            const system = {
+                field_id: fieldId,
+                system_type: systemType,
+                capacity: capacity,
+                installation_date: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            const request = store.add(system);
+            
+            request.onsuccess = function() {
+                alert('Irrigation system installed successfully');
+                document.getElementById('irrigationCapacity').value = '';
+                loadIrrigationSystems();
+                populateIrrigationSystemDropdown();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error installing irrigation system:', event.target.error);
+                alert('Error installing irrigation system');
+            };
+        }
+        
+        function loadIrrigationSystems() {
+            const tx = db.transaction(['irrigation_systems', 'fields'], 'readonly');
+            const systemsStore = tx.objectStore('irrigation_systems');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const request = systemsStore.getAll();
+            
+            request.onsuccess = function() {
+                const systems = request.result;
+                const irrigationHistory = document.getElementById('irrigationHistory');
+                
+                if (systems.length === 0) {
+                    irrigationHistory.innerHTML = '<p>No irrigation systems found</p>';
+                    return;
+                }
+                
+                // Get field names for each system
+                const fieldRequests = systems.map(system => {
+                    return new Promise((resolve) => {
+                        const fieldRequest = fieldsStore.get(system.field_id);
+                        fieldRequest.onsuccess = function() {
+                            system.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                            resolve();
+                        };
+                        fieldRequest.onerror = function() {
+                            system.field_name = 'Unknown';
+                            resolve();
+                        };
+                    });
+                });
+                
+                Promise.all(fieldRequests).then(() => {
+                    let html = '<table><tr><th>ID</th><th>Type</th><th>Field</th><th>Capacity</th><th>Status</th><th>Installed</th></tr>';
+                    
+                    systems.forEach(system => {
+                        html += `<tr>
+                            <td>${system.system_id}</td>
+                            <td>${system.system_type}</td>
+                            <td>${system.field_name}</td>
+                            <td>${system.capacity} L/h</td>
+                            <td>${system.status}</td>
+                            <td>${formatDate(system.installation_date)}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    irrigationHistory.innerHTML = html;
+                });
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading irrigation systems:', event.target.error);
+                document.getElementById('irrigationHistory').innerHTML = '<p>Error loading irrigation systems</p>';
+            };
+        }
+        
+        function checkActiveIrrigation() {
+            const tx = db.transaction(['irrigation_logs'], 'readonly');
+            const store = tx.objectStore('irrigation_logs');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const logs = request.result;
+                const activeLog = logs.find(log => !log.end_time);
+                
+                const activeDiv = document.getElementById('activeIrrigation');
+                const systemSelect = document.getElementById('irrigationSystem');
+                
+                if (activeLog) {
+                    activeDiv.style.display = 'block';
+                    document.getElementById('currentIrrigationInfo').innerHTML = `
+                        <p>System ID: ${activeLog.system_id}</p>
+                        <p>Started: ${formatDateTime(activeLog.start_time)}</p>
+                    `;
+                    
+                    // Disable the system dropdown and start button
+                    systemSelect.disabled = true;
+                    document.querySelector('#Irrigation button[onclick="startIrrigation()"]').disabled = true;
+                    
+                    // Store the active log ID in a data attribute
+                    activeDiv.setAttribute('data-log-id', activeLog.log_id);
+                } else {
+                    activeDiv.style.display = 'none';
+                    systemSelect.disabled = false;
+                    document.querySelector('#Irrigation button[onclick="startIrrigation()"]').disabled = false;
+                }
+            };
+        }
+        
+        function startIrrigation() {
+            const systemId = parseInt(document.getElementById('irrigationSystem').value);
+            
+            if (!systemId) {
+                alert('Please select an irrigation system');
+                return;
+            }
+            
+            const tx = db.transaction(['irrigation_logs'], 'readwrite');
+            const store = tx.objectStore('irrigation_logs');
+            
+            const log = {
+                system_id: systemId,
+                start_time: new Date().toISOString()
+            };
+            
+            const request = store.add(log);
+            
+            request.onsuccess = function() {
+                alert('Irrigation started successfully');
+                populateIrrigationSystemDropdown();
+                loadIrrigationHistory();
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error starting irrigation:', event.target.error);
+                alert('Error starting irrigation');
+            };
+        }
+        
+        function endIrrigation() {
+            const activeDiv = document.getElementById('activeIrrigation');
+            const logId = parseInt(activeDiv.getAttribute('data-log-id'));
+            const waterUsed = parseFloat(document.getElementById('waterUsed').value);
+            
+            if (!logId || isNaN(waterUsed)) {
+                alert('Please enter water used amount');
+                return;
+            }
+            
+            const tx = db.transaction(['irrigation_logs'], 'readwrite');
+            const store = tx.objectStore('irrigation_logs');
+            
+            const getRequest = store.get(logId);
+            
+            getRequest.onsuccess = function() {
+                const log = getRequest.result;
+                log.end_time = new Date().toISOString();
+                log.water_used = waterUsed;
+                
+                const updateRequest = store.put(log);
+                
+                updateRequest.onsuccess = function() {
+                    alert('Irrigation ended successfully');
+                    document.getElementById('waterUsed').value = '';
+                    populateIrrigationSystemDropdown();
+                    loadIrrigationHistory();
+                    loadDashboard();
+                };
+                
+                updateRequest.onerror = function(event) {
+                    console.error('Error ending irrigation:', event.target.error);
+                    alert('Error ending irrigation');
+                };
+            };
+            
+            getRequest.onerror = function(event) {
+                console.error('Error finding irrigation log:', event.target.error);
+                alert('Error finding irrigation log');
+            };
+        }
+        
+        function loadIrrigationHistory() {
+            const tx = db.transaction(['irrigation_logs', 'irrigation_systems', 'fields'], 'readonly');
+            const logsStore = tx.objectStore('irrigation_logs');
+            const systemsStore = tx.objectStore('irrigation_systems');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const request = logsStore.getAll();
+            
+            request.onsuccess = function() {
+                const logs = request.result;
+                const irrigationHistory = document.getElementById('irrigationHistory');
+                
+                if (logs.length === 0) {
+                    irrigationHistory.innerHTML = '<p>No irrigation history found</p>';
+                    return;
+                }
+                
+                // Get system and field info for each log
+                const logDetails = logs.map(log => {
+                    return new Promise((resolve) => {
+                        // Get system info
+                        const systemRequest = systemsStore.get(log.system_id);
+                        systemRequest.onsuccess = function() {
+                            const system = systemRequest.result;
+                            log.system_type = system ? system.system_type : 'Unknown';
+                            
+                            if (system) {
+                                // Get field info
+                                const fieldRequest = fieldsStore.get(system.field_id);
+                                fieldRequest.onsuccess = function() {
+                                    log.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                                    resolve(log);
+                                };
+                                fieldRequest.onerror = function() {
+                                    log.field_name = 'Unknown';
+                                    resolve(log);
+                                };
+                            } else {
+                                log.field_name = 'Unknown';
+                                resolve(log);
+                            }
+                        };
+                        
+                        systemRequest.onerror = function() {
+                            log.system_type = 'Unknown';
+                            log.field_name = 'Unknown';
+                            resolve(log);
+                        };
+                    });
+                });
+                
+                Promise.all(logDetails).then(logsWithDetails => {
+                    let html = '<table><tr><th>ID</th><th>System</th><th>Field</th><th>Start Time</th><th>End Time</th><th>Water Used (L)</th></tr>';
+                    
+                    logsWithDetails.forEach(log => {
+                        html += `<tr>
+                            <td>${log.log_id}</td>
+                            <td>${log.system_type}</td>
+                            <td>${log.field_name}</td>
+                            <td>${formatDateTime(log.start_time)}</td>
+                            <td>${formatDateTime(log.end_time)}</td>
+                            <td>${log.water_used || 'N/A'}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    irrigationHistory.innerHTML = html;
+                });
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading irrigation history:', event.target.error);
+                document.getElementById('irrigationHistory').innerHTML = '<p>Error loading irrigation history</p>';
+            };
+        }
+        
+        // Harvest management functions
+        function populateHarvestFieldDropdown() {
+            const tx = db.transaction(['fields'], 'readonly');
+            const store = tx.objectStore('fields');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const fields = request.result;
+                const dropdown = document.getElementById('harvestField');
+                
+                dropdown.innerHTML = '';
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.field_id;
+                    option.textContent = `${field.name} (ID: ${field.field_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function recordHarvest() {
+            const fieldId = parseInt(document.getElementById('harvestField').value);
+            const yieldAmount = parseFloat(document.getElementById('harvestYield').value);
+            const yieldUnit = document.getElementById('harvestUnit').value;
+            const qualityRating = parseInt(document.getElementById('harvestQuality').value);
+            
+            if (!fieldId || isNaN(yieldAmount) || !yieldUnit || isNaN(qualityRating) || qualityRating < 1 || qualityRating > 5) {
+                alert('Please fill all fields with valid values (quality 1-5)');
+                return;
+            }
+            
+            const tx = db.transaction(['harvests', 'fields'], 'readwrite');
+            const harvestsStore = tx.objectStore('harvests');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const harvest = {
+                field_id: fieldId,
+                harvest_date: new Date().toISOString(),
+                yield_amount: yieldAmount,
+                yield_unit: yieldUnit,
+                quality_rating: qualityRating
+            };
+            
+            const request = harvestsStore.add(harvest);
+            
+            request.onsuccess = function() {
+                // Update field status to harvested
+                const fieldRequest = fieldsStore.get(fieldId);
+                fieldRequest.onsuccess = function() {
+                    const field = fieldRequest.result;
+                    if (field) {
+                        field.status = 'harvested';
+                        const updateRequest = fieldsStore.put(field);
+                        
+                        updateRequest.onsuccess = function() {
+                            alert('Harvest recorded successfully and field status updated');
+                            document.getElementById('harvestYield').value = '';
+                            document.getElementById('harvestUnit').value = '';
+                            document.getElementById('harvestQuality').value = '';
+                            loadHarvests();
+                            loadFields();
+                            loadDashboard();
+                        };
+                        
+                        updateRequest.onerror = function(event) {
+                            console.error('Error updating field status:', event.target.error);
+                            alert('Harvest recorded but error updating field status');
+                        };
+                    }
+                };
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error recording harvest:', event.target.error);
+                alert('Error recording harvest');
+            };
+        }
+        
+        function loadHarvests() {
+            const tx = db.transaction(['harvests', 'fields'], 'readonly');
+            const harvestsStore = tx.objectStore('harvests');
+            const fieldsStore = tx.objectStore('fields');
+            
+            const request = harvestsStore.getAll();
+            
+            request.onsuccess = function() {
+                const harvests = request.result;
+                const harvestHistory = document.getElementById('harvestHistory');
+                
+                if (harvests.length === 0) {
+                    harvestHistory.innerHTML = '<p>No harvest records found</p>';
+                    return;
+                }
+                
+                // Get field info for each harvest
+                const fieldRequests = harvests.map(harvest => {
+                    return new Promise((resolve) => {
+                        const fieldRequest = fieldsStore.get(harvest.field_id);
+                        fieldRequest.onsuccess = function() {
+                            harvest.field_name = fieldRequest.result ? fieldRequest.result.name : 'Unknown';
+                            harvest.crop_type = fieldRequest.result ? fieldRequest.result.crop_type : 'Unknown';
+                            resolve();
+                        };
+                        fieldRequest.onerror = function() {
+                            harvest.field_name = 'Unknown';
+                            harvest.crop_type = 'Unknown';
+                            resolve();
+                        };
+                    });
+                });
+                
+                Promise.all(fieldRequests).then(() => {
+                    let html = '<table><tr><th>ID</th><th>Field</th><th>Crop</th><th>Date</th><th>Yield</th><th>Quality</th></tr>';
+                    
+                    harvests.forEach(harvest => {
+                        html += `<tr>
+                            <td>${harvest.harvest_id}</td>
+                            <td>${harvest.field_name}</td>
+                            <td>${harvest.crop_type}</td>
+                            <td>${formatDate(harvest.harvest_date)}</td>
+                            <td>${harvest.yield_amount} ${harvest.yield_unit}</td>
+                            <td>${'★'.repeat(harvest.quality_rating)}${'☆'.repeat(5-harvest.quality_rating)}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    harvestHistory.innerHTML = html;
+                });
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading harvests:', event.target.error);
+                document.getElementById('harvestHistory').innerHTML = '<p>Error loading harvests</p>';
+            };
+        }
+        
+        // Analytics functions
+        function populateHealthFieldDropdown() {
+            const tx = db.transaction(['fields'], 'readonly');
+            const store = tx.objectStore('fields');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const fields = request.result;
+                const dropdown = document.getElementById('healthField');
+                
+                dropdown.innerHTML = '';
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.field_id;
+                    option.textContent = `${field.name} (ID: ${field.field_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function populateWaterFarmDropdown() {
+            const tx = db.transaction(['farms'], 'readonly');
+            const store = tx.objectStore('farms');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const farms = request.result;
+                const dropdown = document.getElementById('waterFarm');
+                
+                dropdown.innerHTML = '';
+                farms.forEach(farm => {
+                    const option = document.createElement('option');
+                    option.value = farm.farm_id;
+                    option.textContent = `${farm.name} (ID: ${farm.farm_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function populateYieldFarmDropdown() {
+            const tx = db.transaction(['farms'], 'readonly');
+            const store = tx.objectStore('farms');
+            const request = store.getAll();
+            
+            request.onsuccess = function() {
+                const farms = request.result;
+                const dropdown = document.getElementById('yieldFarm');
+                
+                dropdown.innerHTML = '';
+                farms.forEach(farm => {
+                    const option = document.createElement('option');
+                    option.value = farm.farm_id;
+                    option.textContent = `${farm.name} (ID: ${farm.farm_id})`;
+                    dropdown.appendChild(option);
+                });
+            };
+        }
+        
+        function analyzeFieldHealth() {
+            const fieldId = parseInt(document.getElementById('healthField').value);
+            
+            if (!fieldId) {
+                alert('Please select a field');
+                return;
+            }
+            
+            const tx = db.transaction(['fields', 'sensors', 'sensor_readings', 'crops'], 'readonly');
+            const fieldsStore = tx.objectStore('fields');
+            const sensorsStore = tx.objectStore('sensors');
+            const readingsStore = tx.objectStore('sensor_readings');
+            const cropsStore = tx.objectStore('crops');
+            
+            // Get the field info first
+            const fieldRequest = fieldsStore.get(fieldId);
+            
+            fieldRequest.onsuccess = function() {
+                const field = fieldRequest.result;
+                if (!field) {
+                    document.getElementById('fieldHealthResult').innerHTML = '<p>Field not found</p>';
+                    return;
+                }
+                
+                // Get all sensors for this field
+                const index = sensorsStore.index('field_id');
+                const sensorsRequest = index.getAll(IDBKeyRange.only(fieldId));
+                
+                sensorsRequest.onsuccess = function() {
+                    const sensors = sensorsRequest.result;
+                    
+                    // Get latest readings for each sensor
+                    const readingPromises = sensors.map(sensor => {
+                        return new Promise((resolve) => {
+                            const readingsIndex = readingsStore.index('sensor_id');
+                            const readingRequest = readingsIndex.openCursor(IDBKeyRange.only(sensor.sensor_id), 'prev');
+                            
+                            let latestReading = null;
+                            readingRequest.onsuccess = function(event) {
+                                const cursor = event.target.result;
+                                if (cursor) {
+                                    latestReading = cursor.value;
+                                    resolve({ sensor, latestReading });
+                                } else {
+                                    resolve({ sensor, latestReading: null });
+                                }
+                            };
+                            
+                            readingRequest.onerror = function() {
+                                resolve({ sensor, latestReading: null });
+                            };
+                        });
+                    });
+                    
+                    Promise.all(readingPromises).then(sensorReadings => {
+                        // Get crop optimal conditions
+                        const cropRequest = cropsStore.index('name').get(field.crop_type);
+                        
+                        cropRequest.onsuccess = function() {
+                            const crop = cropRequest.result;
+                            const resultDiv = document.getElementById('fieldHealthResult');
+                            
+                            if (!crop) {
+                                resultDiv.innerHTML = `<p>No crop data available for ${field.crop_type}</p>`;
+                                return;
+                            }
+                            
+                            // Analyze readings
+                            let analysis = { status: 'good', issues: [] };
+                            let html = `<h4>Field: ${field.name} (Crop: ${field.crop_type})</h4>`;
+                            
+                            const tempReading = sensorReadings.find(r => r.sensor.sensor_type === 'temperature');
+                            const moistureReading = sensorReadings.find(r => r.sensor.sensor_type === 'soil_moisture');
+                            
+                            if (tempReading && tempReading.latestReading) {
+                                const temp = tempReading.latestReading.value;
+                                html += `<p>Temperature: ${temp}°C (Optimal: ${crop.optimal_temp_min}-${crop.optimal_temp_max}°C)</p>`;
+                                
+                                if (temp < crop.optimal_temp_min) {
+                                    analysis.status = 'warning';
+                                    analysis.issues.push(`Temperature too low (${temp}°C < optimal ${crop.optimal_temp_min}°C)`);
+                                } else if (temp > crop.optimal_temp_max) {
+                                    analysis.status = 'warning';
+                                    analysis.issues.push(`Temperature too high (${temp}°C > optimal ${crop.optimal_temp_max}°C)`);
+                                }
+                            } else {
+                                html += '<p>Temperature: No data available</p>';
+                            }
+                            
+                            if (moistureReading && moistureReading.latestReading) {
+                                const moisture = moistureReading.latestReading.value;
+                                html += `<p>Soil Moisture: ${moisture}% (Optimal: ${crop.optimal_moisture_min}-${crop.optimal_moisture_max}%)</p>`;
+                                
+                                if (moisture < crop.optimal_moisture_min) {
+                                    analysis.status = 'warning';
+                                    analysis.issues.push(`Soil moisture too low (${moisture}% < optimal ${crop.optimal_moisture_min}%)`);
+                                } else if (moisture > crop.optimal_moisture_max) {
+                                    analysis.status = 'warning';
+                                    analysis.issues.push(`Soil moisture too high (${moisture}% > optimal ${crop.optimal_moisture_max}%)`);
+                                }
+                            } else {
+                                html += '<p>Soil Moisture: No data available</p>';
+                            }
+                            
+                            // Add status and issues
+                            const statusClass = analysis.status === 'good' ? 'status-good' : 'status-warning';
+                            html += `<p class="${statusClass}">Status: ${analysis.status.toUpperCase()}</p>`;
+                            
+                            if (analysis.issues.length > 0) {
+                                html += '<h4>Issues:</h4><ul>';
+                                analysis.issues.forEach(issue => {
+                                    html += `<li>${issue}</li>`;
+                                });
+                                html += '</ul>';
+                            }
+                            
+                            resultDiv.innerHTML = html;
+                        };
+                        
+                        cropRequest.onerror = function() {
+                            document.getElementById('fieldHealthResult').innerHTML = '<p>Error loading crop data</p>';
+                        };
+                    });
+                };
+                
+                sensorsRequest.onerror = function() {
+                    document.getElementById('fieldHealthResult').innerHTML = '<p>Error loading sensor data</p>';
+                };
+            };
+            
+            fieldRequest.onerror = function() {
+                document.getElementById('fieldHealthResult').innerHTML = '<p>Error loading field data</p>';
+            };
+        }
+        
+        function generateWaterReport() {
+            const farmId = parseInt(document.getElementById('waterFarm').value);
+            const period = document.getElementById('waterPeriod').value;
+            
+            if (!farmId) {
+                alert('Please select a farm');
+                return;
+            }
+            
+            let timeFilter;
+            switch(period) {
+                case 'day':
+                    timeFilter = "date('now')";
+                    break;
+                case 'week':
+                    timeFilter = "date('now', '-7 days')";
+                    break;
+                case 'month':
+                    timeFilter = "date('now', '-1 month')";
+                    break;
+                default:
+                    timeFilter = "date('now', '-1 month')";
+            }
+            
+            const tx = db.transaction(['irrigation_logs', 'irrigation_systems', 'fields'], 'readonly');
+            const logsStore = tx.objectStore('irrigation_logs');
+            const systemsStore = tx.objectStore('irrigation_systems');
+            const fieldsStore = tx.objectStore('fields');
+            
+            // Get all fields for this farm
+            const fieldsIndex = fieldsStore.index('farm_id');
+            const fieldsRequest = fieldsIndex.getAll(IDBKeyRange.only(farmId));
+            
+            fieldsRequest.onsuccess = function() {
+                const fields = fieldsRequest.result;
+                const fieldIds = fields.map(f => f.field_id);
+                
+                if (fieldIds.length === 0) {
+                    document.getElementById('waterReport').innerHTML = '<p>No fields found for this farm</p>';
+                    return;
+                }
+                
+                // Get all irrigation systems for these fields
+                const systemsPromises = fieldIds.map(fieldId => {
+                    return new Promise((resolve) => {
+                        const systemsIndex = systemsStore.index('field_id');
+                        const systemsRequest = systemsIndex.getAll(IDBKeyRange.only(fieldId));
+                        
+                        systemsRequest.onsuccess = function() {
+                            resolve(systemsRequest.result);
+                        };
+                        
+                        systemsRequest.onerror = function() {
+                            resolve([]);
+                        };
+                    });
+                });
+                
+                Promise.all(systemsPromises).then(systemsArrays => {
+                    const systems = systemsArrays.flat();
+                    const systemIds = systems.map(s => s.system_id);
+                    
+                    if (systemIds.length === 0) {
+                        document.getElementById('waterReport').innerHTML = '<p>No irrigation systems found for these fields</p>';
+                        return;
+                    }
+                    
+                    // Get all irrigation logs for these systems within the time period
+                    const logsPromises = systemIds.map(systemId => {
+                        return new Promise((resolve) => {
+                            const logsIndex = logsStore.index('system_id');
+                            const logsRequest = logsIndex.getAll(IDBKeyRange.only(systemId));
+                            
+                            logsRequest.onsuccess = function() {
+                                const logs = logsRequest.result;
+                                // Filter by date in JavaScript since IndexedDB doesn't support date comparisons in queries
+                                const filteredLogs = logs.filter(log => {
+                                    const logDate = new Date(log.start_time);
+                                    const cutoffDate = new Date();
+                                    
+                                    switch(period) {
+                                        case 'day':
+                                            cutoffDate.setDate(cutoffDate.getDate() - 1);
+                                            break;
+                                        case 'week':
+                                            cutoffDate.setDate(cutoffDate.getDate() - 7);
+                                            break;
+                                        case 'month':
+                                            cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+                                            break;
+                                    }
+                                    
+                                    return logDate >= cutoffDate;
+                                });
+                                
+                                resolve(filteredLogs);
+                            };
+                            
+                            logsRequest.onerror = function() {
+                                resolve([]);
+                            };
+                        });
+                    });
+                    
+                    Promise.all(logsPromises).then(logsArrays => {
+                        const allLogs = logsArrays.flat();
+                        
+                        // Group by field and calculate totals
+                        const fieldWaterUsage = {};
+                        
+                        allLogs.forEach(log => {
+                            const system = systems.find(s => s.system_id === log.system_id);
+                            if (system) {
+                                if (!fieldWaterUsage[system.field_id]) {
+                                    const field = fields.find(f => f.field_id === system.field_id);
+                                    fieldWaterUsage[system.field_id] = {
+                                        name: field ? field.name : 'Unknown',
+                                        totalWater: 0
+                                    };
+                                }
+                                
+                                if (log.water_used) {
+                                    fieldWaterUsage[system.field_id].totalWater += log.water_used;
+                                }
+                            }
+                        });
+                        
+                        // Display results
+                        let html = '<h4>Water Usage Report</h4>';
+                        html += `<p>Time Period: Last ${period}</p>`;
+                        
+                        if (Object.keys(fieldWaterUsage).length === 0) {
+                            html += '<p>No irrigation data found for this period</p>';
+                        } else {
+                            html += '<table><tr><th>Field</th><th>Total Water Used (Liters)</th></tr>';
+                            
+                            for (const fieldId in fieldWaterUsage) {
+                                html += `<tr>
+                                    <td>${fieldWaterUsage[fieldId].name}</td>
+                                    <td>${fieldWaterUsage[fieldId].totalWater.toFixed(1)}</td>
+                                </tr>`;
+                            }
+                            
+                            const totalWater = Object.values(fieldWaterUsage).reduce((sum, field) => sum + field.totalWater, 0);
+                            html += `<tr><th>Total</th><th>${totalWater.toFixed(1)}</th></tr>`;
+                            html += '</table>';
+                        }
+                        
+                        document.getElementById('waterReport').innerHTML = html;
+                    });
+                });
+            };
+            
+            fieldsRequest.onerror = function() {
+                document.getElementById('waterReport').innerHTML = '<p>Error loading field data</p>';
+            };
+        }
+        
+        function generateYieldComparison() {
+            const farmId = parseInt(document.getElementById('yieldFarm').value);
+            
+            if (!farmId) {
+                alert('Please select a farm');
+                return;
+            }
+            
+            const tx = db.transaction(['fields', 'harvests'], 'readonly');
+            const fieldsStore = tx.objectStore('fields');
+            const harvestsStore = tx.objectStore('harvests');
+            
+            // Get all fields for this farm
+            const fieldsIndex = fieldsStore.index('farm_id');
+            const fieldsRequest = fieldsIndex.getAll(IDBKeyRange.only(farmId));
+            
+            fieldsRequest.onsuccess = function() {
+                const fields = fieldsRequest.result;
+                
+                if (fields.length === 0) {
+                    document.getElementById('yieldComparison').innerHTML = '<p>No fields found for this farm</p>';
+                    return;
+                }
+                
+                // Get all harvests for these fields
+                const harvestsPromises = fields.map(field => {
+                    return new Promise((resolve) => {
+                        const harvestsIndex = harvestsStore.index('field_id');
+                        const harvestsRequest = harvestsIndex.getAll(IDBKeyRange.only(field.field_id));
+                        
+                        harvestsRequest.onsuccess = function() {
+                            resolve({
+                                field: field,
+                                harvests: harvestsRequest.result
+                            });
+                        };
+                        
+                        harvestsRequest.onerror = function() {
+                            resolve({
+                                field: field,
+                                harvests: []
+                            });
+                        };
+                    });
+                });
+                
+                Promise.all(harvestsPromises).then(results => {
+                    // Calculate averages for each field
+                    const fieldStats = results.map(result => {
+                        const harvests = result.harvests;
+                        
+                        if (harvests.length === 0) {
+                            return {
+                                field: result.field,
+                                avgYield: null,
+                                avgQuality: null,
+                                harvestCount: 0
+                            };
+                        }
+                        
+                        const totalYield = harvests.reduce((sum, h) => sum + h.yield_amount, 0);
+                        const totalQuality = harvests.reduce((sum, h) => sum + h.quality_rating, 0);
+                        
+                        return {
+                            field: result.field,
+                            avgYield: totalYield / harvests.length,
+                            yieldUnit: harvests[0].yield_unit,
+                            avgQuality: totalQuality / harvests.length,
+                            harvestCount: harvests.length
+                        };
+                    });
+                    
+                    // Filter out fields with no harvests
+                    const fieldsWithHarvests = fieldStats.filter(f => f.harvestCount > 0);
+                    
+                    // Display results
+                    let html = '<h4>Yield Comparison Report</h4>';
+                    
+                    if (fieldsWithHarvests.length === 0) {
+                        html += '<p>No harvest data available for any fields in this farm</p>';
+                    } else {
+                        // Sort by average yield (descending)
+                        fieldsWithHarvests.sort((a, b) => b.avgYield - a.avgYield);
+                        
+                        html += '<table><tr><th>Field</th><th>Crop</th><th>Avg Yield</th><th>Avg Quality</th><th>Harvests</th></tr>';
+                        
+                        fieldsWithHarvests.forEach(field => {
+                            html += `<tr>
+                                <td>${field.field.name}</td>
+                                <td>${field.field.crop_type}</td>
+                                <td>${field.avgYield.toFixed(1)} ${field.yieldUnit}</td>
+                                <td>${'★'.repeat(Math.round(field.avgQuality))}${'☆'.repeat(5-Math.round(field.avgQuality))} (${field.avgQuality.toFixed(1)})</td>
+                                <td>${field.harvestCount}</td>
+                            </tr>`;
+                        });
+                        
+                        html += '</table>';
+                    }
+                    
+                    document.getElementById('yieldComparison').innerHTML = html;
+                });
+            };
+            
+            fieldsRequest.onerror = function() {
+                document.getElementById('yieldComparison').innerHTML = '<p>Error loading field data</p>';
+            };
+        }
+        
+        // Dashboard functions
+        function loadDashboard() {
+            loadDashboardStats();
+            loadRecentReadings();
+            loadIrrigationAlerts();
+        }
+        
+        function loadDashboardStats() {
+            const tx = db.transaction(['farms', 'fields', 'harvests'], 'readonly');
+            const farmsStore = tx.objectStore('farms');
+            const fieldsStore = tx.objectStore('fields');
+            const harvestsStore = tx.objectStore('harvests');
+            
+            // Count farms
+            const farmsCountRequest = farmsStore.count();
+            
+            farmsCountRequest.onsuccess = function() {
+                const farmsCount = farmsCountRequest.result;
+                
+                // Count fields
+                const fieldsCountRequest = fieldsStore.count();
+                
+                fieldsCountRequest.onsuccess = function() {
+                    const fieldsCount = fieldsCountRequest.result;
+                    
+                    // Count harvests
+                    const harvestsCountRequest = harvestsStore.count();
+                    
+                    harvestsCountRequest.onsuccess = function() {
+                        const harvestsCount = harvestsCountRequest.result;
+                        
+                        // Display stats
+                        const statsDiv = document.getElementById('dashboardStats');
+                        statsDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+                                <div style="text-align: center;">
+                                    <h3>${farmsCount}</h3>
+                                    <p>Farms</p>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3>${fieldsCount}</h3>
+                                    <p>Fields</p>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3>${harvestsCount}</h3>
+                                    <p>Harvests</p>
+                                </div>
+                            </div>
+                        `;
+                    };
+                };
+            };
+        }
+        
+        function loadRecentReadings() {
+            const tx = db.transaction(['sensor_readings', 'sensors', 'fields'], 'readonly');
+            const readingsStore = tx.objectStore('sensor_readings');
+            const sensorsStore = tx.objectStore('sensors');
+            const fieldsStore = tx.objectStore('fields');
+            
+            // Get all readings, sorted by time (descending)
+            const index = readingsStore.index('reading_time');
+            const request = index.openCursor(null, 'prev');
+            
+            const recentReadings = [];
+            const fieldsCache = {};
+            
+            request.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor && recentReadings.length < 5) {
+                    recentReadings.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    // Got all recent readings, now get sensor and field info
+                    if (recentReadings.length === 0) {
+                        document.getElementById('recentReadings').innerHTML = '<p>No recent sensor readings</p>';
+                        return;
+                    }
+                    
+                    const readingDetails = recentReadings.map(reading => {
+                        return new Promise((resolve) => {
+                            // Get sensor info
+                            const sensorRequest = sensorsStore.get(reading.sensor_id);
+                            
+                            sensorRequest.onsuccess = function() {
+                                const sensor = sensorRequest.result;
+                                reading.sensor_type = sensor ? sensor.sensor_type : 'Unknown';
+                                
+                                if (sensor) {
+                                    // Get field info (use cache if available)
+                                    if (fieldsCache[sensor.field_id]) {
+                                        reading.field_name = fieldsCache[sensor.field_id];
+                                        resolve(reading);
+                                    } else {
+                                        const fieldRequest = fieldsStore.get(sensor.field_id);
+                                        
+                                        fieldRequest.onsuccess = function() {
+                                            const field = fieldRequest.result;
+                                            reading.field_name = field ? field.name : 'Unknown';
+                                            fieldsCache[sensor.field_id] = reading.field_name;
+                                            resolve(reading);
+                                        };
+                                        
+                                        fieldRequest.onerror = function() {
+                                            reading.field_name = 'Unknown';
+                                            resolve(reading);
+                                        };
+                                    }
+                                } else {
+                                    reading.field_name = 'Unknown';
+                                    resolve(reading);
+                                }
+                            };
+                            
+                            sensorRequest.onerror = function() {
+                                reading.sensor_type = 'Unknown';
+                                reading.field_name = 'Unknown';
+                                resolve(reading);
+                            };
+                        });
+                    });
+                    
+                    Promise.all(readingDetails).then(readingsWithDetails => {
+                        let html = '<table><tr><th>Time</th><th>Sensor Type</th><th>Field</th><th>Value</th></tr>';
+                        
+                        readingsWithDetails.forEach(reading => {
+                            html += `<tr>
+                                <td>${formatDateTime(reading.reading_time)}</td>
+                                <td>${reading.sensor_type}</td>
+                                <td>${reading.field_name}</td>
+                                <td>${reading.value} ${reading.unit}</td>
+                            </tr>`;
+                        });
+                        
+                        html += '</table>';
+                        document.getElementById('recentReadings').innerHTML = html;
+                    });
+                }
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading recent readings:', event.target.error);
+                document.getElementById('recentReadings').innerHTML = '<p>Error loading recent readings</p>';
+            };
+        }
+        
+        function loadIrrigationAlerts() {
+            const tx = db.transaction(['fields', 'sensors', 'sensor_readings', 'crops'], 'readonly');
+            const fieldsStore = tx.objectStore('fields');
+            const sensorsStore = tx.objectStore('sensors');
+            const readingsStore = tx.objectStore('sensor_readings');
+            const cropsStore = tx.objectStore('crops');
+            
+            // Get all fields with status 'growing'
+            const fieldsIndex = fieldsStore.index('status');
+            const fieldsRequest = fieldsIndex.getAll(IDBKeyRange.only('growing'));
+            
+            fieldsRequest.onsuccess = function() {
+                const fields = fieldsRequest.result;
+                
+                if (fields.length === 0) {
+                    document.getElementById('irrigationAlerts').innerHTML = '<p>No fields currently growing crops</p>';
+                    return;
+                }
+                
+                // Check each field for low moisture
+                const fieldChecks = fields.map(field => {
+                    return new Promise((resolve) => {
+                        // Get crop info first
+                        const cropRequest = cropsStore.index('name').get(field.crop_type);
+                        
+                        cropRequest.onsuccess = function() {
+                            const crop = cropRequest.result;
+                            
+                            if (!crop) {
+                                resolve({ field, needsIrrigation: false });
+                                return;
+                            }
+                            
+                            // Get moisture sensors for this field
+                            const sensorsIndex = sensorsStore.index('field_id');
+                            const sensorsRequest = sensorsIndex.getAll(IDBKeyRange.only(field.field_id));
+                            
+                            sensorsRequest.onsuccess = function() {
+                                const sensors = sensorsRequest.result;
+                                const moistureSensors = sensors.filter(s => s.sensor_type === 'soil_moisture');
+                                
+                                if (moistureSensors.length === 0) {
+                                    resolve({ field, needsIrrigation: false });
+                                    return;
+                                }
+                                
+                                // Get latest reading for each moisture sensor
+                                const readingPromises = moistureSensors.map(sensor => {
+                                    return new Promise((resolve) => {
+                                        const readingsIndex = readingsStore.index('sensor_id');
+                                        const readingRequest = readingsIndex.openCursor(IDBKeyRange.only(sensor.sensor_id), 'prev');
+                                        
+                                        let latestReading = null;
+                                        readingRequest.onsuccess = function(event) {
+                                            const cursor = event.target.result;
+                                            if (cursor) {
+                                                latestReading = cursor.value;
+                                                resolve(latestReading);
+                                            } else {
+                                                resolve(null);
+                                            }
+                                        };
+                                        
+                                        readingRequest.onerror = function() {
+                                            resolve(null);
+                                        };
+                                    });
+                                });
+                                
+                                Promise.all(readingPromises).then(readings => {
+                                    const validReadings = readings.filter(r => r !== null);
+                                    
+                                    if (validReadings.length === 0) {
+                                        resolve({ field, needsIrrigation: false });
+                                        return;
+                                    }
+                                    
+                                    // Calculate average moisture
+                                    const avgMoisture = validReadings.reduce((sum, r) => sum + r.value, 0) / validReadings.length;
+                                    
+                                    resolve({
+                                        field,
+                                        needsIrrigation: avgMoisture < crop.optimal_moisture_min,
+                                        moisture: avgMoisture,
+                                        optimalMin: crop.optimal_moisture_min
+                                    });
+                                });
+                            };
+                            
+                            sensorsRequest.onerror = function() {
+                                resolve({ field, needsIrrigation: false });
+                            };
+                        };
+                        
+                        cropRequest.onerror = function() {
+                            resolve({ field, needsIrrigation: false });
+                        };
+                    });
+                });
+                
+                Promise.all(fieldChecks).then(results => {
+                    const fieldsNeedingIrrigation = results.filter(r => r.needsIrrigation);
+                    
+                    let html = '<h4>Irrigation Recommendations</h4>';
+                    
+                    if (fieldsNeedingIrrigation.length === 0) {
+                        html += '<p>No fields currently need irrigation</p>';
+                    } else {
+                        html += '<table><tr><th>Field</th><th>Crop</th><th>Soil Moisture</th><th>Recommended Action</th></tr>';
+                        
+                        fieldsNeedingIrrigation.forEach(({ field, moisture, optimalMin }) => {
+                            html += `<tr>
+                                <td>${field.name}</td>
+                                <td>${field.crop_type}</td>
+                                <td>${moisture.toFixed(1)}% (optimal > ${optimalMin}%)</td>
+                                <td><button onclick="navigateToIrrigation(${field.field_id})">Start Irrigation</button></td>
+                            </tr>`;
+                        });
+                        
+                        html += '</table>';
+                    }
+                    
+                    document.getElementById('irrigationAlerts').innerHTML = html;
+                });
+            };
+            
+            fieldsRequest.onerror = function() {
+                document.getElementById('irrigationAlerts').innerHTML = '<p>Error loading field data</p>';
+            };
+        }
+        
+        function navigateToIrrigation(fieldId) {
+            // Switch to Irrigation tab
+            document.querySelector('.tablinks.active').click();
+            document.querySelector('.tab button[onclick="openTab(event, \'Irrigation\')"]').click();
+            
+            // Select the field's irrigation system if available
+            const tx = db.transaction(['irrigation_systems'], 'readonly');
+            const systemsStore = tx.objectStore('irrigation_systems');
+            const index = systemsStore.index('field_id');
+            const request = index.getAll(IDBKeyRange.only(fieldId));
+            
+            request.onsuccess = function() {
+                const systems = request.result;
+                if (systems.length > 0) {
+                    const dropdown = document.getElementById('irrigationSystem');
+                    dropdown.value = systems[0].system_id;
+                }
+            };
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDatabase().then(() => {
+                console.log("Database initialized");
+                loadDashboard();
+                loadFarms();
+                loadFields();
+                loadSensors();
+                loadIrrigationSystems();
+                loadHarvests();
+                
+                // Populate all dropdowns
+                populateFieldFarmDropdown();
+                populateSensorFieldDropdown();
+                populateReadingSensorDropdown();
+                populateIrrigationFieldDropdown();
+                populateIrrigationSystemDropdown();
+                populateHarvestFieldDropdown();
+                populateHealthFieldDropdown();
+                populateWaterFarmDropdown();
+                populateYieldFarmDropdown();
+            }).catch(error => {
+                console.error("Database initialization failed:", error);
+                alert("Failed to initialize database. Please check console for details.");
+            });
+        });
+    </script>
+</body>
+</html>
